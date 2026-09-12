@@ -1,0 +1,26 @@
+{
+  "_comment": "Single source of truth for MongoDB indexes. Applied by database/indexes/mongo_indexes.py. Keep this in sync with backend/app/models/.",
+  "standards": [
+    { "keys": { "standard_number": 1 }, "options": { "unique": true, "name": "uq_standard_number" } },
+    { "keys": { "category": 1 }, "options": { "name": "idx_category" } }
+  ],
+  "qcos": [
+    { "keys": { "qco_name": 1 }, "options": { "name": "idx_qco_name" } },
+    { "keys": { "applies_to_standards": 1 }, "options": { "name": "idx_applies_to_standards" } }
+  ],
+  "laboratories": [
+    { "keys": { "city": 1, "state": 1 }, "options": { "name": "idx_location" } },
+    { "keys": { "scope": 1 }, "options": { "name": "idx_scope" } }
+  ],
+  "users": [
+    { "keys": { "email": 1 }, "options": { "unique": true, "name": "uq_email" } }
+  ],
+  "chat_sessions": [
+    { "keys": { "session_id": 1 }, "options": { "unique": true, "name": "uq_session_id" } },
+    { "keys": { "created_at": 1 }, "options": { "name": "idx_created_at" } }
+  ],
+  "compliance_assessments": [
+    { "keys": { "product_context_id": 1 }, "options": { "name": "idx_product_context_id" } },
+    { "keys": { "created_at": 1 }, "options": { "name": "idx_created_at" } }
+  ]
+}

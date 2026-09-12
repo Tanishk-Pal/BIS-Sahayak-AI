@@ -1,0 +1,16 @@
+{
+  "_comment": "This is a SAMPLE/DEMO metadata record shape, not verified regulatory data. Used to design the ingestion pipeline in Phase 5. Every field marked 'verify' must be confirmed against an official BIS source before being treated as fact.",
+  "document_id": "demo-is-2082-2018",
+  "type": "standard",
+  "standard_number": "IS 2082:2018",
+  "title": "Stationary Storage Type Electric Water Heaters - Specification",
+  "status": "verify",
+  "qco_linked": "verify",
+  "mandatory": "verify",
+  "related_standards": [],
+  "amendments": [],
+  "source_url": "https://www.services.bis.gov.in/",
+  "retrieved_on": null,
+  "file_path": "knowledge_base/standards/",
+  "notes": "Used as the Phase 13 MVP demo case (water heater journey). Do not hardcode this as the answer for all water heaters - applicability must be determined per product context at query time."
+}

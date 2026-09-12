@@ -1,0 +1,15 @@
+{
+  "_comment": "DEMO/FIXTURE DATA ONLY. Not verified against official BIS sources.",
+  "collection": "laboratories",
+  "records": [
+    {
+      "lab_name": "Demo BIS-Recognized Test Lab",
+      "city": "Bhopal",
+      "state": "Madhya Pradesh",
+      "scope": ["electrical_appliances"],
+      "is_bis_recognized": "demo_unverified",
+      "contact": null,
+      "is_demo_fixture": true
+    }
+  ]
+}

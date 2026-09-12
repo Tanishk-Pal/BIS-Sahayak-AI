@@ -1,0 +1,26 @@
+{
+  "_comment": "DEMO/FIXTURE DATA ONLY. Not verified against official BIS sources. Used to drive local dev and the SIH demo flow. Do not treat as regulatory fact - see knowledge_base/metadata/ for the real-data workflow.",
+  "collection": "standards",
+  "records": [
+    {
+      "standard_number": "IS 2082:2018",
+      "title": "Stationary Storage Type Electric Water Heaters - Specification",
+      "status": "demo_unverified",
+      "mandatory": "demo_unverified",
+      "category": "electrical_appliances",
+      "related_qcos": [],
+      "source_url": "https://www.services.bis.gov.in/",
+      "is_demo_fixture": true
+    },
+    {
+      "standard_number": "IS 302-2-2:2009",
+      "title": "Safety of household and similar electrical appliances (demo entry)",
+      "status": "demo_unverified",
+      "mandatory": "demo_unverified",
+      "category": "electrical_appliances",
+      "related_qcos": [],
+      "source_url": "https://www.services.bis.gov.in/",
+      "is_demo_fixture": true
+    }
+  ]
+}

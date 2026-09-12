@@ -1,0 +1,14 @@
+{
+  "_comment": "DEMO/FIXTURE DATA ONLY. Not verified against official BIS sources.",
+  "collection": "qcos",
+  "records": [
+    {
+      "qco_name": "Demo Electrical Appliances (Quality Control) Order",
+      "applies_to_standards": ["IS 2082:2018"],
+      "status": "demo_unverified",
+      "effective_date": null,
+      "source_url": "https://consumeraffairs.nic.in/",
+      "is_demo_fixture": true
+    }
+  ]
+}
