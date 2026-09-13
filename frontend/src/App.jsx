@@ -1,17 +1,21 @@
-import { Routes, Route } from 'react-router-dom'
-import MainLayout from './layouts/MainLayout'
-import HomePage from './pages/HomePage'
-import ChatPage from './pages/ChatPage'
-import NotFoundPage from './pages/NotFoundPage'
 
-export default function App() {
+import { useEffect } from "react";
+import { useApp } from "./context/AppContext";
+import MainLayout from "./layouts/MainLayout";
+import ChatPage from "./pages/ChatPage";
+
+function App() {
+  const { theme } = useApp();
+
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
+
   return (
     <MainLayout>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <ChatPage />
     </MainLayout>
-  )
+  );
 }
+
+export default App;
