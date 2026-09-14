@@ -1,30 +1,102 @@
-import { createContext, useContext, useState } from 'react'
 
-// Holds cross-page state:
-// - userType: 'consumer' | 'manufacturer' | null
-// - productContext: the manufacturer's product details collected so far
-// Kept minimal on purpose. Expand as Phase 6 (Product Intelligence) and
-// Phase 7 (Compliance Engine) add real fields.
-const AppContext = createContext(undefined)
+import { createContext, useContext, useState } from "react";
+
+const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [userType, setUserType] = useState(null)
-  const [productContext, setProductContext] = useState(null)
+  const [theme, setTheme] = useState("light");
 
-  const value = {
-    userType,
-    setUserType,
-    productContext,
-    setProductContext
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const [messages, setMessages] = useState([]);
+
+  const [chatHistory, setChatHistory] = useState([
+    {
+      id: 1,
+      title: "Welcome to BIS Sahayak AI",
+    },
+    {
+      id: 2,
+      title: "What is BIS certification?",
+    },
+    {
+      id: 3,
+      title: "Explain the ISI mark",
+    },
+  ]);
+
+  function toggleTheme() {
+    setTheme((currentTheme) =>
+      currentTheme === "light" ? "dark" : "light"
+    );
   }
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>
+  function toggleSidebar() {
+    setSidebarOpen((currentState) => !currentState);
+  }
+
+  function startNewChat() {
+    setMessages([]);
+  }
+
+  function sendMessage(text) {
+    const userMessage = {
+      id: Date.now(),
+      sender: "user",
+      text: text,
+    };
+
+    setMessages((previousMessages) => [
+      ...previousMessages,
+      userMessage,
+    ]);
+
+    const aiMessage = {
+      id: Date.now() + 1,
+      sender: "ai",
+      text:
+        "Hello! I am BIS Sahayak AI.\n\n" +
+        "Your question has been received. " +
+        "Real AI responses will be connected later " +
+        "using a backend API.",
+    };
+
+    setTimeout(() => {
+      setMessages((previousMessages) => [
+        ...previousMessages,
+        aiMessage,
+      ]);
+    }, 700);
+  }
+
+  return (
+    <AppContext.Provider
+      value={{
+        theme,
+        setTheme,
+        sidebarOpen,
+        toggleSidebar,
+        toggleTheme,
+        messages,
+        sendMessage,
+        startNewChat,
+        chatHistory,
+        setChatHistory,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 }
 
-export function useAppContext() {
-  const ctx = useContext(AppContext)
-  if (ctx === undefined) {
-    throw new Error('useAppContext must be used within an AppProvider')
+export function useApp() {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    throw new Error(
+      "useApp must be used inside AppProvider"
+    );
   }
-  return ctx
+
+  return context;
 }
