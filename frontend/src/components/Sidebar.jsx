@@ -1,107 +1,224 @@
-
 import bisLogo from "../assets/bis-logo.png";
 import { useApp } from "../context/AppContext";
+
+import {
+  House,
+  Settings,
+  UserRound,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  MessageSquare,
+} from "lucide-react";
 
 function Sidebar() {
   const {
     sidebarOpen,
     toggleSidebar,
+    sendMessage,
     startNewChat,
     chatHistory,
+    currentChatId,
   } = useApp();
+
+  /* =====================================================
+     NEW CHAT
+  ===================================================== */
+
+  function handleNewChat() {
+    startNewChat();
+  }
+
+  /* =====================================================
+     RECENT CHAT
+  ===================================================== */
+
+  function handleRecentChat(chat) {
+    /*
+      At the moment, your app does not store the complete
+      messages of each chat.
+
+      Therefore, this opens the chat using its title
+      as a demo message.
+
+      Later, when backend/chat storage is added,
+      this function can load the complete conversation.
+    */
+
+    startNewChat();
+    sendMessage(chat.title);
+  }
+
+  /* =====================================================
+     HOME
+  ===================================================== */
+
+  function handleHome() {
+    startNewChat();
+  }
+
+  /* =====================================================
+     SETTINGS
+  ===================================================== */
+
+  function handleSettings() {
+    alert("Settings section will be added soon.");
+  }
+
+  /* =====================================================
+     PROFILE
+  ===================================================== */
+
+  function handleProfile() {
+    alert("Profile section will be added soon.");
+  }
 
   return (
     <aside
       className={`sidebar ${
-        sidebarOpen
-          ? "sidebar-open"
-          : "sidebar-closed"
+        sidebarOpen ? "" : "sidebar-collapsed"
       }`}
     >
-      <div className="sidebar-top">
-        <div className="brand">
+      {/* =================================================
+          SIDEBAR HEADER
+      ================================================= */}
+
+      <div className="sidebar-header">
+        <div className="sidebar-brand">
           <img
-  src={bisLogo}
-  alt="BIS Logo"
-  className="bis-logo-image"
-/>
+            src={bisLogo}
+            alt="BIS Logo"
+            className="sidebar-logo"
+          />
 
           {sidebarOpen && (
-            <div className="brand-text">
-              <strong>BIS Sahayak AI</strong>
-              <span>Your AI Assistant</span>
+            <div className="sidebar-brand-text">
+              <h2>BIS Sahayak AI</h2>
+              <p>Your AI Assistant</p>
             </div>
           )}
         </div>
 
         <button
-          className="icon-button"
+          type="button"
+          className="collapse-button"
           onClick={toggleSidebar}
-          title="Toggle sidebar"
-          aria-label="Toggle sidebar"
+          title={
+            sidebarOpen
+              ? "Collapse sidebar"
+              : "Expand sidebar"
+          }
+          aria-label={
+            sidebarOpen
+              ? "Collapse sidebar"
+              : "Expand sidebar"
+          }
         >
-          {sidebarOpen ? "‹" : "›"}
+          {sidebarOpen ? (
+            <ChevronLeft size={18} />
+          ) : (
+            <ChevronRight size={18} />
+          )}
         </button>
       </div>
 
-      <button
-        className="new-chat-button"
-        onClick={startNewChat}
-      >
-        <span>＋</span>
+      {/* =================================================
+          NEW CHAT BUTTON
+      ================================================= */}
 
-        {sidebarOpen && (
-          <span>New chat</span>
-        )}
+      <button
+        type="button"
+        className="new-chat-button"
+        onClick={handleNewChat}
+        title="Start a new chat"
+      >
+        <Plus size={18} />
+
+        {sidebarOpen && <span>New chat</span>}
       </button>
 
-      {sidebarOpen && (
-        <div className="history-section">
-          <p className="history-title">
-            Recent chats
-          </p>
+      {/* =================================================
+          RECENT CHATS
+      ================================================= */}
 
-          {chatHistory.map((chat) => (
-            <button
-              className="history-item"
-              key={chat.id}
-            >
-              <span>💬</span>
-              <span>{chat.title}</span>
-            </button>
-          ))}
+      {sidebarOpen && (
+        <div className="recent-chats">
+          <h4>RECENT CHATS</h4>
+
+          {chatHistory.length > 0 ? (
+            chatHistory.map((chat) => (
+              <button
+                type="button"
+                key={chat.id}
+                className={`recent-chat-item ${
+                  currentChatId === chat.id ? "active" : ""
+                }`}
+                onClick={() => handleRecentChat(chat)}
+                title={chat.title}
+              >
+                <MessageSquare size={14} />
+
+                <span>{chat.title}</span>
+              </button>
+            ))
+          ) : (
+            <p className="no-recent-chats">
+              No recent chats yet
+            </p>
+          )}
         </div>
       )}
 
+      {/* =================================================
+          BOTTOM MENU
+      ================================================= */}
+
       <div className="sidebar-bottom">
-        <button className="sidebar-item">
-          <span>⌂</span>
+        {/* HOME */}
 
-          {sidebarOpen && (
-            <span>Home</span>
-          )}
+        <button
+          type="button"
+          className="sidebar-menu-button"
+          onClick={handleHome}
+          title="Home"
+        >
+          <House size={17} />
+
+          {sidebarOpen && <span>Home</span>}
         </button>
 
-        <button className="sidebar-item">
-          <span>⚙</span>
+        {/* SETTINGS */}
 
-          {sidebarOpen && (
-            <span>Settings</span>
-          )}
+        <button
+          type="button"
+          className="sidebar-menu-button"
+          onClick={handleSettings}
+          title="Settings"
+        >
+          <Settings size={17} />
+
+          {sidebarOpen && <span>Settings</span>}
         </button>
 
-        <button className="sidebar-item">
-          <span>♙</span>
+        {/* PROFILE */}
 
-          {sidebarOpen && (
-            <span>Profile</span>
-          )}
+        <button
+          type="button"
+          className="sidebar-menu-button"
+          onClick={handleProfile}
+          title="Profile"
+        >
+          <UserRound size={17} />
+
+          {sidebarOpen && <span>Profile</span>}
         </button>
+
+        {/* FOOTER */}
 
         {sidebarOpen && (
           <div className="sidebar-footer">
             <strong>BIS Sahayak AI</strong>
-            <span>Frontend Demo</span>
+           
           </div>
         )}
       </div>
