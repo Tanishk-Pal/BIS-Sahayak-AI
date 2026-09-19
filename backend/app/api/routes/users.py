@@ -2,7 +2,14 @@ from fastapi import APIRouter, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.api.dependencies import get_current_user, get_db
-from app.schemas.user import GoogleAuthRequest, LoginRequest, SignupRequest, TokenResponse, UserOut
+from app.schemas.user import (
+    GoogleAuthRequest,
+    LoginRequest,
+    SignupRequest,
+    TokenResponse,
+    UserOut,
+    UserTypeRequest,
+)
 from app.services import user_service
 
 router = APIRouter(prefix="/api", tags=["auth"])
@@ -23,14 +30,23 @@ async def login(data: LoginRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
 
 @router.post("/auth/google", response_model=TokenResponse)
 async def auth_google(data: GoogleAuthRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Log in (or auto-create an account) using a Google ID token.
-    The frontend gets this token from Google Identity Services after the
-    user picks their Google account - see frontend/src/services/authService.js."""
+    """Log in (or auto-create an account) using a Google ID token."""
     return await user_service.login_or_signup_google(db, data)
 
 
 @router.get("/me", response_model=UserOut)
 async def me(current_user: UserOut = Depends(get_current_user)):
-    """Returns the logged-in user. Frontend calls this on app load to check
-    if a saved token is still valid and to restore the session."""
+    """Returns the logged-in user, including onboarding state. Frontend
+    calls this on app load and after set-user-type to know whether to show
+    the Consumer/Manufacturer picker, the onboarding chat, or normal chat."""
     return current_user
+
+
+@router.post("/user-type", response_model=UserOut)
+async def set_user_type(
+    data: UserTypeRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user),
+):
+    """Called once from the 'Who are you?' screen right after login."""
+    return await user_service.set_user_type(db, current_user.id, data.user_type)

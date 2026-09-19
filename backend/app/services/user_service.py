@@ -1,11 +1,13 @@
 """
-All auth business logic lives here. Routes (api/routes/users.py) stay thin
-and just call these functions - keeps HTTP concerns separate from what
-actually happens with the database and tokens.
+All auth + onboarding business logic lives here. Routes stay thin and just
+call these functions - keeps HTTP concerns separate from what actually
+happens with the database and tokens.
 """
 
 from datetime import datetime, timezone
 
+from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import HTTPException, status
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -14,7 +16,13 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.core.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.database.collections import users_collection
-from app.schemas.user import GoogleAuthRequest, LoginRequest, SignupRequest, TokenResponse, UserOut
+from app.schemas.user import (
+    GoogleAuthRequest,
+    LoginRequest,
+    SignupRequest,
+    TokenResponse,
+    UserOut,
+)
 
 
 def _doc_to_user_out(doc: dict) -> UserOut:
@@ -24,6 +32,9 @@ def _doc_to_user_out(doc: dict) -> UserOut:
         full_name=doc["full_name"],
         auth_provider=doc["auth_provider"],
         created_at=doc["created_at"],
+        user_type=doc.get("user_type"),
+        onboarding_complete=doc.get("onboarding_complete", False),
+        manufacturer_profile=doc.get("manufacturer_profile", {}),
     )
 
 
@@ -39,6 +50,9 @@ async def signup_local(db: AsyncIOMotorDatabase, data: SignupRequest) -> TokenRe
         "hashed_password": hash_password(data.password),
         "google_id": None,
         "created_at": datetime.now(timezone.utc),
+        "user_type": None,
+        "onboarding_complete": False,
+        "manufacturer_profile": {},
     }
     result = await users_collection().insert_one(doc)
     doc["_id"] = result.inserted_id
@@ -95,6 +109,9 @@ async def login_or_signup_google(db: AsyncIOMotorDatabase, data: GoogleAuthReque
                 "hashed_password": None,
                 "google_id": google_id,
                 "created_at": datetime.now(timezone.utc),
+                "user_type": None,
+                "onboarding_complete": False,
+                "manufacturer_profile": {},
             }
             result = await users_collection().insert_one(new_doc)
             new_doc["_id"] = result.inserted_id
@@ -104,17 +121,45 @@ async def login_or_signup_google(db: AsyncIOMotorDatabase, data: GoogleAuthReque
     return TokenResponse(access_token=token, user=_doc_to_user_out(doc))
 
 
-async def get_user_by_id(db: AsyncIOMotorDatabase, user_id: str) -> UserOut:
-    from bson import ObjectId
-    from bson.errors import InvalidId
-
+def _object_id(user_id: str) -> ObjectId:
     try:
-        object_id = ObjectId(user_id)
+        return ObjectId(user_id)
     except InvalidId:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
 
-    doc = await users_collection().find_one({"_id": object_id})
+
+async def get_user_by_id(db: AsyncIOMotorDatabase, user_id: str) -> UserOut:
+    doc = await users_collection().find_one({"_id": _object_id(user_id)})
     if not doc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-
     return _doc_to_user_out(doc)
+
+
+async def set_user_type(db: AsyncIOMotorDatabase, user_id: str, user_type: str) -> UserOut:
+    """Called once, right after login, from the Consumer/Manufacturer choice
+    screen. Consumers are considered onboarded immediately - only
+    manufacturers go through the deeper product-profiling chat flow."""
+    updates = {"user_type": user_type}
+    if user_type == "consumer":
+        updates["onboarding_complete"] = True
+
+    await users_collection().update_one({"_id": _object_id(user_id)}, {"$set": updates})
+    return await get_user_by_id(db, user_id)
+
+
+async def apply_onboarding_update(
+    db: AsyncIOMotorDatabase,
+    user_id: str,
+    profile_updates: dict,
+    onboarding_complete: bool,
+) -> None:
+    """Called after each onboarding chat turn to merge newly-learned fields
+    into the user's manufacturer_profile and flip onboarding_complete once
+    the AI decides it has a full enough picture of the product."""
+    object_id = _object_id(user_id)
+
+    set_fields = {f"manufacturer_profile.{k}": v for k, v in profile_updates.items() if v}
+    set_fields["onboarding_complete"] = onboarding_complete
+
+    if set_fields:
+        await users_collection().update_one({"_id": object_id}, {"$set": set_fields})

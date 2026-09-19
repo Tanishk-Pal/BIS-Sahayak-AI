@@ -14,6 +14,17 @@ export const api = axios.create({
   }
 })
 
+// Attach the saved login token to every outgoing request automatically.
+// /api/chat and /api/user-type now require login, so callers (AppContext,
+// authService) don't each need to remember to add this header themselves.
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('bis_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 // Basic response error normalization so components don't each
 // have to unwrap axios error shapes individually.
 api.interceptors.response.use(

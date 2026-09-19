@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import chat as chat_routes
 from app.api.routes import users as users_routes
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -28,6 +29,7 @@ app.add_middleware(
 )
 
 app.include_router(users_routes.router)
+app.include_router(chat_routes.router)
 
 
 @app.get("/api/health")
@@ -35,6 +37,5 @@ async def health_check():
     return {"status": "ok"}
 
 
-# As chat.py, standards.py, compliance.py, documents.py, labs.py get real
-# implementations, include their routers here the same way as users_routes above:
-# app.include_router(chat_routes.router)
+# standards.py, compliance.py, documents.py, labs.py still to come -
+# include their routers here the same way as chat_routes above once built.

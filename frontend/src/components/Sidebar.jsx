@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import bisLogo from "../assets/bis-logo.png";
 import { useApp } from "../context/AppContext";
 
@@ -22,6 +21,8 @@ function Sidebar() {
     chatHistory,
     currentChatId,
   } = useApp();
+
+  const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
@@ -69,6 +70,7 @@ function Sidebar() {
 
   function handleHome() {
     startNewChat();
+    navigate("/chat");
   }
 
   function handleSettings() {
@@ -76,20 +78,7 @@ function Sidebar() {
   }
 
   function handleProfile() {
-    if (!sidebarOpen) {
-      toggleSidebar();
-      setProfileOpen(true);
-      return;
-    }
-
-    setProfileOpen((previousState) => !previousState);
-  }
-
-  function handleLogout() {
-    localStorage.removeItem("bisUser");
-    localStorage.removeItem("userType");
-
-    window.location.reload();
+    alert("Profile section will be added soon.");
   }
 
   return (
