@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # Google Sign-In
     google_client_id: str = ""
 
+    # Gemini
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
+
     # CORS - comma-separated in .env, parsed into a list here
     cors_origins: str = "http://localhost:5173"
 

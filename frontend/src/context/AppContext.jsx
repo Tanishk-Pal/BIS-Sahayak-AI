@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
 } from "react";
+import api from "../services/api";
 
 const AppContext = createContext(null);
 
@@ -15,6 +16,7 @@ export function AppProvider({ children }) {
   const [isTyping, setIsTyping] = useState(false);
 
   const [currentChatId, setCurrentChatId] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
 
   /*
     Current user role.
@@ -68,86 +70,24 @@ export function AppProvider({ children }) {
   function startNewChat() {
     setMessages([]);
     setCurrentChatId(null);
+    setSessionId(null);
   }
 
   function getWelcomeMessage() {
     if (userType === "manufacturer") {
       return (
-        "Hello! I am BIS Sahayak AI.\n\n" 
-        
+        "Hello! I am BIS Sahayak AI.\n\n"
+
       );
     }
 
     return (
-      "Hello! I am BIS Sahayak AI.\n\n" 
-      
+      "Hello! I am BIS Sahayak AI.\n\n"
+
     );
   }
 
-  function getDemoReply(text) {
-    const question = text.toLowerCase();
-
-    if (
-      question.includes("certification") ||
-      question.includes("certificate")
-    ) {
-      return (
-        "BIS certification confirms that a product follows " +
-        "the applicable Indian Standard.\n\n" +
-        "The process generally includes:\n" +
-        "1. Identify the applicable Indian Standard.\n" +
-        "2. Apply through the appropriate BIS process.\n" +
-        "3. Product testing and inspection, if required.\n" +
-        "4. BIS evaluation and approval.\n\n" +
-        "The exact process depends on the product category."
-      );
-    }
-
-    if (
-      question.includes("isi") ||
-      question.includes("mark")
-    ) {
-      return (
-        "The ISI mark indicates that a product conforms " +
-        "to the relevant Indian Standard under the applicable " +
-        "BIS certification scheme.\n\n" +
-        "Always check the mark and licence details carefully " +
-        "before purchasing a product."
-      );
-    }
-
-    if (
-      question.includes("indian standard") ||
-      question.includes("standard")
-    ) {
-      return (
-        "An Indian Standard is a document that specifies " +
-        "requirements, guidelines, or specifications for " +
-        "products, services, or processes.\n\n" +
-        "These standards help improve quality, safety, " +
-        "reliability, and consistency."
-      );
-    }
-
-    if (
-      question.includes("hello") ||
-      question.includes("hi") ||
-      question.includes("hey")
-    ) {
-      return getWelcomeMessage();
-    }
-
-    return (
-      "Thank you for your question.\n\n" +
-      "I am currently running in demo mode. I can provide " +
-      "basic information about BIS certification, Indian " +
-      "Standards, ISI marks, and product safety.\n\n" +
-      "A complete AI response system will be connected " +
-      "through the backend API later."
-    );
-  }
-
-  function sendMessage(text) {
+  async function sendMessage(text) {
     const cleanedText = text.trim();
 
     if (!cleanedText) {
@@ -186,20 +126,44 @@ export function AppProvider({ children }) {
 
     setIsTyping(true);
 
-setTimeout(() => {
-  const aiMessage = {
-    id: Date.now() + 1,
-    sender: "ai",
-    text: getDemoReply(cleanedText),
-  };
+    try {
+      const { data } = await api.post("/chat", {
+        message: cleanedText,
+        userType,
+        sessionId,
+      });
 
-  setMessages((previousMessages) => [
-    ...previousMessages,
-    aiMessage,
-  ]);
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+      }
 
-  setIsTyping(false);
-}, 1200);
+      const aiMessage = {
+        id: Date.now() + 1,
+        sender: "ai",
+        text: data.reply,
+        sources: data.sources ?? [],
+      };
+
+      setMessages((previousMessages) => [
+        ...previousMessages,
+        aiMessage,
+      ]);
+    } catch (error) {
+      const errorMessage = {
+        id: Date.now() + 1,
+        sender: "ai",
+        text:
+          "Sorry, I couldn't reach the BIS Sahayak backend just now. " +
+          (error?.message || "Please try again in a moment."),
+      };
+
+      setMessages((previousMessages) => [
+        ...previousMessages,
+        errorMessage,
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   return (
@@ -213,9 +177,9 @@ setTimeout(() => {
 
         toggleTheme,
 
-      
+
         messages,
-       sendMessage,
+        sendMessage,
         isTyping,
 
         startNewChat,
