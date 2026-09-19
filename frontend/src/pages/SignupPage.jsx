@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { login } from "../services/authService";
+import { signup } from "../services/authService";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import bisLogo from "../assets/bis-logo.png";
 
-function LoginPage() {
+function SignupPage() {
   const { loginSuccess } = useAuth();
   const navigate = useNavigate();
 
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -20,11 +21,11 @@ function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const data = await login({ email, password });
+      const data = await signup({ email, password, full_name: fullName });
       loginSuccess(data);
       navigate("/chat");
     } catch (err) {
-      setError(err.message || "Login failed. Check your email and password.");
+      setError(err.message || "Could not create your account.");
     } finally {
       setIsSubmitting(false);
     }
@@ -53,13 +54,21 @@ function LoginPage() {
       >
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <img src={bisLogo} alt="BIS Sahayak AI" style={{ width: 56, height: 56, marginBottom: 12 }} />
-          <h2 style={{ margin: 0, color: "var(--text-primary)" }}>Welcome back</h2>
+          <h2 style={{ margin: 0, color: "var(--text-primary)" }}>Create your account</h2>
           <p style={{ margin: "6px 0 0", color: "var(--text-secondary)", fontSize: 14 }}>
-            Log in to BIS Sahayak AI
+            Get started with BIS Sahayak AI
           </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <input
+            type="text"
+            placeholder="Full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            style={inputStyle}
+          />
           <input
             type="email"
             placeholder="Email"
@@ -70,10 +79,11 @@ function LoginPage() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Password (min 8 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={8}
             style={inputStyle}
           />
 
@@ -82,7 +92,7 @@ function LoginPage() {
           )}
 
           <button type="submit" disabled={isSubmitting} style={primaryButtonStyle}>
-            {isSubmitting ? "Logging in..." : "Log in"}
+            {isSubmitting ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
@@ -106,7 +116,7 @@ function LoginPage() {
         </div>
 
         <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "var(--text-secondary)" }}>
-          Don't have an account? <Link to="/signup" style={{ color: "var(--brand)" }}>Sign up</Link>
+          Already have an account? <Link to="/login" style={{ color: "var(--brand)" }}>Log in</Link>
         </p>
       </div>
     </div>
@@ -133,4 +143,4 @@ const primaryButtonStyle = {
   cursor: "pointer",
 };
 
-export default LoginPage;
+export default SignupPage;

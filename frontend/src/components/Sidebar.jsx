@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import bisLogo from "../assets/bis-logo.png";
 import { useApp } from "../context/AppContext";
 
@@ -20,6 +21,8 @@ function Sidebar() {
     chatHistory,
     currentChatId,
   } = useApp();
+
+  const navigate = useNavigate();
 
   /* =====================================================
      NEW CHAT
@@ -55,6 +58,7 @@ function Sidebar() {
 
   function handleHome() {
     startNewChat();
+    navigate("/chat");
   }
 
   /* =====================================================
@@ -70,7 +74,7 @@ function Sidebar() {
   ===================================================== */
 
   function handleProfile() {
-    alert("Profile section will be added soon.");
+    navigate("/profile");
   }
 
   return (

@@ -6,7 +6,7 @@ never leaks into an API response.
 """
 
 from datetime import datetime, timezone
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -19,5 +19,10 @@ class UserInDB(BaseModel):
     hashed_password: Optional[str] = None   # None for google-only accounts
     google_id: Optional[str] = None         # None for local (email/password) accounts
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    # Onboarding / product-profiling state
+    user_type: Optional[Literal["consumer", "manufacturer"]] = None
+    onboarding_complete: bool = False
+    manufacturer_profile: dict[str, Any] = Field(default_factory=dict)
 
     model_config = {"populate_by_name": True}
