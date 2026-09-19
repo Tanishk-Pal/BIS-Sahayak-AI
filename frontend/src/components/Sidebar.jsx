@@ -1,3 +1,6 @@
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import bisLogo from "../assets/bis-logo.png";
 import { useApp } from "../context/AppContext";
 
@@ -9,7 +12,6 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
-  LogOut,
 } from "lucide-react";
 
 function Sidebar() {
