@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import bisLogo from "../assets/bis-logo.png";
 import { useApp } from "../context/AppContext";
 
@@ -9,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
+  LogOut,
 } from "lucide-react";
 
 function Sidebar() {
@@ -21,56 +23,73 @@ function Sidebar() {
     currentChatId,
   } = useApp();
 
-  /* =====================================================
-     NEW CHAT
-  ===================================================== */
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  const savedUser = JSON.parse(
+    localStorage.getItem("bisUser") || "null"
+  );
+
+  const savedUserType =
+    localStorage.getItem("userType") || "consumer";
+
+  const userRole =
+    savedUserType === "manufacturer"
+      ? "Manufacturer"
+      : "Consumer";
+
+  useEffect(() => {
+    function handleOutsideClick(event) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target)
+      ) {
+        setProfileOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick
+      );
+    };
+  }, []);
 
   function handleNewChat() {
     startNewChat();
   }
 
-  /* =====================================================
-     RECENT CHAT
-  ===================================================== */
-
   function handleRecentChat(chat) {
-    /*
-      At the moment, your app does not store the complete
-      messages of each chat.
-
-      Therefore, this opens the chat using its title
-      as a demo message.
-
-      Later, when backend/chat storage is added,
-      this function can load the complete conversation.
-    */
-
     startNewChat();
     sendMessage(chat.title);
   }
-
-  /* =====================================================
-     HOME
-  ===================================================== */
 
   function handleHome() {
     startNewChat();
   }
 
-  /* =====================================================
-     SETTINGS
-  ===================================================== */
-
   function handleSettings() {
     alert("Settings section will be added soon.");
   }
 
-  /* =====================================================
-     PROFILE
-  ===================================================== */
-
   function handleProfile() {
-    alert("Profile section will be added soon.");
+    if (!sidebarOpen) {
+      toggleSidebar();
+      setProfileOpen(true);
+      return;
+    }
+
+    setProfileOpen((previousState) => !previousState);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("bisUser");
+    localStorage.removeItem("userType");
+
+    window.location.reload();
   }
 
   return (
@@ -79,9 +98,7 @@ function Sidebar() {
         sidebarOpen ? "" : "sidebar-collapsed"
       }`}
     >
-      {/* =================================================
-          SIDEBAR HEADER
-      ================================================= */}
+      {/* SIDEBAR HEADER */}
 
       <div className="sidebar-header">
         <div className="sidebar-brand">
@@ -122,9 +139,7 @@ function Sidebar() {
         </button>
       </div>
 
-      {/* =================================================
-          NEW CHAT BUTTON
-      ================================================= */}
+      {/* NEW CHAT */}
 
       <button
         type="button"
@@ -137,9 +152,7 @@ function Sidebar() {
         {sidebarOpen && <span>New chat</span>}
       </button>
 
-      {/* =================================================
-          RECENT CHATS
-      ================================================= */}
+      {/* RECENT CHATS */}
 
       {sidebarOpen && (
         <div className="recent-chats">
@@ -157,7 +170,6 @@ function Sidebar() {
                 title={chat.title}
               >
                 <MessageSquare size={14} />
-
                 <span>{chat.title}</span>
               </button>
             ))
@@ -169,13 +181,9 @@ function Sidebar() {
         </div>
       )}
 
-      {/* =================================================
-          BOTTOM MENU
-      ================================================= */}
+      {/* BOTTOM MENU */}
 
       <div className="sidebar-bottom">
-        {/* HOME */}
-
         <button
           type="button"
           className="sidebar-menu-button"
@@ -186,8 +194,6 @@ function Sidebar() {
 
           {sidebarOpen && <span>Home</span>}
         </button>
-
-        {/* SETTINGS */}
 
         <button
           type="button"
@@ -200,25 +206,67 @@ function Sidebar() {
           {sidebarOpen && <span>Settings</span>}
         </button>
 
-        {/* PROFILE */}
+        {/* PROFILE SECTION */}
 
-        <button
-          type="button"
-          className="sidebar-menu-button"
-          onClick={handleProfile}
-          title="Profile"
+        <div
+          className="profile-container"
+          ref={profileRef}
         >
-          <UserRound size={17} />
+          <button
+            type="button"
+            className={`sidebar-menu-button ${
+              profileOpen ? "profile-active" : ""
+            }`}
+            onClick={handleProfile}
+            title="Profile"
+          >
+            <UserRound size={17} />
 
-          {sidebarOpen && <span>Profile</span>}
-        </button>
+            {sidebarOpen && <span>Profile</span>}
+          </button>
+
+          {sidebarOpen && profileOpen && (
+            <div className="sidebar-profile-menu">
+              <div className="profile-info">
+                <div className="profile-avatar">
+                  <UserRound size={21} />
+                </div>
+
+                <div className="profile-details">
+                  <strong>BIS User</strong>
+
+                  <span>
+                    {savedUser?.email || "User account"}
+                  </span>
+
+                  <small>{userRole}</small>
+                </div>
+              </div>
+
+              <div className="profile-menu-divider"></div>
+
+              <div className="profile-logout-row">
+                <span>Logout</span>
+
+                <button
+                  type="button"
+                  className="logout-icon-button"
+                  onClick={handleLogout}
+                  title="Logout"
+                  aria-label="Logout"
+                >
+                  <LogOut size={19} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* FOOTER */}
 
         {sidebarOpen && (
           <div className="sidebar-footer">
             <strong>BIS Sahayak AI</strong>
-           
           </div>
         )}
       </div>

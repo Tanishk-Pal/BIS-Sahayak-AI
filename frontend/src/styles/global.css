@@ -2148,3 +2148,118 @@ body.dark .sidebar-menu-button a:focus {
 .copy-message-button:active {
   transform: scale(0.94);
 }
+/* =========================================================
+   PROFILE DROPDOWN
+========================================================= */
+
+.profile-container {
+  position: relative;
+  width: 100%;
+}
+
+.profile-active {
+  background: rgba(66, 133, 255, 0.12);
+  color: #2563eb;
+}
+
+.sidebar-profile-menu {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+
+  border: 1px solid var(--color-border, #e5eaf2);
+  border-radius: 14px;
+
+  background: var(--color-surface, #ffffff);
+  box-shadow: 0 8px 25px rgba(30, 60, 110, 0.12);
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.profile-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: #e8f0ff;
+  color: #2563eb;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.profile-details strong {
+  color: var(--color-text-primary, #172033);
+  font-size: 14px;
+}
+
+.profile-details span {
+  overflow: hidden;
+  color: var(--color-text-secondary, #718096);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-details small {
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.profile-menu-divider {
+  height: 1px;
+  margin: 13px 0;
+  background: var(--color-border, #e5eaf2);
+}
+
+.profile-logout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.logout-icon-button {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #dc2626;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.logout-icon-button:hover {
+  background: rgba(220, 38, 38, 0.12);
+}
+
+.logout-icon-button:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
