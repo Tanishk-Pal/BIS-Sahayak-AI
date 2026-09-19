@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useApp } from "./context/AppContext";
 import MainLayout from "./layouts/MainLayout";

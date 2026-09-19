@@ -1,23 +1,13 @@
-
-import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-import { useApp } from "../context/AppContext";
+import Sidebar from "../components/Sidebar";
 
 function MainLayout({ children }) {
-  const { sidebarOpen } = useApp();
-
   return (
-    <div className="app-shell">
-      <Sidebar />
+    <div className="app-layout">
+      <Navbar />
 
-      <div
-        className={`main-section ${
-          sidebarOpen
-            ? "sidebar-expanded"
-            : "sidebar-collapsed"
-        }`}
-      >
-        <Navbar />
+      <div className="main-content">
+        <Sidebar />
 
         <main className="page-content">
           {children}
