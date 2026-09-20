@@ -21,50 +21,107 @@ function ChatPage() {
   }
 
   // =====================================================
+  // CONVERT URLs INTO CLICKABLE LINKS
+  // =====================================================
+
+  function renderMessageText(text) {
+    if (!text) return null;
+
+    // Detect http:// and https:// URLs
+    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
+
+    const lines = String(text).split("\n");
+
+    return lines.map((line, lineIndex) => {
+      const parts = line.split(urlRegex);
+
+      return (
+        <span key={lineIndex}>
+          {parts.map((part, partIndex) => {
+            // Check whether this part is a URL
+            if (/^https?:\/\/[^\s<>"']+$/.test(part)) {
+              // Remove common punctuation from the end of the URL
+              const match = part.match(/^(.*?)([.,!?;:]*)$/);
+
+              const url = match ? match[1] : part;
+              const punctuation = match ? match[2] : "";
+
+              return (
+                <span key={partIndex}>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="chat-link"
+                  >
+                    {url}
+                  </a>
+                  {punctuation}
+                </span>
+              );
+            }
+
+            return (
+              <span key={partIndex}>
+                {part}
+              </span>
+            );
+          })}
+
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      );
+    });
+  }
+
+  // =====================================================
   // COPY AI ANSWER
   // =====================================================
 
   async function handleCopy(text, messageId) {
-  try {
-    // Try modern clipboard API
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      // Fallback for local network HTTP
-      const textArea = document.createElement("textarea");
+    try {
+      // Try modern clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for local network HTTP
+        const textArea = document.createElement("textarea");
 
-      textArea.value = text;
+        textArea.value = text;
 
-      textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
 
-      document.body.appendChild(textArea);
+        document.body.appendChild(textArea);
 
-      textArea.focus();
-      textArea.select();
+        textArea.focus();
+        textArea.select();
 
-      const successful = document.execCommand("copy");
+        const successful = document.execCommand("copy");
 
-      document.body.removeChild(textArea);
+        document.body.removeChild(textArea);
 
-      if (!successful) {
-        throw new Error("Copy command failed");
+        if (!successful) {
+          throw new Error("Copy command failed");
+        }
       }
+
+      // Show check only after successful copying
+      setCopiedMessageId(messageId);
+
+      setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 1500);
+    } catch (error) {
+      console.error("Copy failed:", error);
+
+      alert("Unable to copy the answer. Please try again.");
     }
-
-    // Show check only after successful copying
-    setCopiedMessageId(messageId);
-
-    setTimeout(() => {
-      setCopiedMessageId(null);
-    }, 1500);
-
-  } catch (error) {
-    console.error("Copy failed:", error);
-
-    alert("Unable to copy the answer. Please try again.");
   }
-}
+
+  // =====================================================
+  // SEND CHAT MESSAGE
+  // =====================================================
 
   function handleChatSend({ text, file }) {
     if (file) {
@@ -82,12 +139,11 @@ function ChatPage() {
     <div className="chat-page">
       <div className="chat-content">
 
+        {/* =====================================================
+            WELCOME SCREEN
+        ===================================================== */}
+
         {messages.length === 0 ? (
-
-          // =====================================================
-          // WELCOME SCREEN
-          // =====================================================
-
           <div className="welcome-screen">
 
             <img
@@ -111,6 +167,10 @@ function ChatPage() {
             <p className="welcome-subtitle">
               {getWelcomeMessage()}
             </p>
+
+            {/* =====================================================
+                SUGGESTION CARDS
+            ===================================================== */}
 
             <div className="suggestion-grid">
 
@@ -195,9 +255,9 @@ function ChatPage() {
 
         ) : (
 
-          // =====================================================
-          // CHAT MESSAGES
-          // =====================================================
+          /* =====================================================
+             CHAT MESSAGES
+          ===================================================== */
 
           <div className="messages-container">
 
@@ -211,6 +271,10 @@ function ChatPage() {
                 }`}
                 key={message.id}
               >
+
+                {/* =====================================================
+                    MESSAGE AVATAR
+                ===================================================== */}
 
                 <div className="message-avatar">
 
@@ -226,6 +290,10 @@ function ChatPage() {
 
                 </div>
 
+                {/* =====================================================
+                    MESSAGE BODY
+                ===================================================== */}
+
                 <div className="message-body">
 
                   <strong>
@@ -234,7 +302,13 @@ function ChatPage() {
                       : "BIS Sahayak AI"}
                   </strong>
 
-                  <p>{message.text}</p>
+                  {/* =====================================================
+                      MESSAGE TEXT WITH CLICKABLE LINKS
+                  ===================================================== */}
+
+                  <p className="message-text">
+                    {renderMessageText(message.text)}
+                  </p>
 
                   {/* =====================================================
                       COPY BUTTON
@@ -287,7 +361,9 @@ function ChatPage() {
 
                 <div className="message-body">
 
-                  <strong>BIS Sahayak AI</strong>
+                  <strong>
+                    BIS Sahayak AI
+                  </strong>
 
                   <div className="typing-indicator">
 
@@ -316,10 +392,13 @@ function ChatPage() {
             </button>
 
           </div>
-
         )}
 
       </div>
+
+      {/* =====================================================
+          CHAT INPUT
+      ===================================================== */}
 
       <ChatInput onSend={handleChatSend} />
 

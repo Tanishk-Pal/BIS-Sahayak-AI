@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-import bisLogo from "../assets/bis-logo.png";
 import { useApp } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
+import bisLogo from "../assets/bis-logo.png";
 
 import {
   House,
@@ -26,61 +24,46 @@ function Sidebar() {
 
   const navigate = useNavigate();
 
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profileRef = useRef(null);
-
-  const savedUser = JSON.parse(
-    localStorage.getItem("bisUser") || "null"
-  );
-
-  const savedUserType =
-    localStorage.getItem("userType") || "consumer";
-
-  const userRole =
-    savedUserType === "manufacturer"
-      ? "Manufacturer"
-      : "Consumer";
-
-  useEffect(() => {
-    function handleOutsideClick(event) {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(event.target)
-      ) {
-        setProfileOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleOutsideClick);
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick
-      );
-    };
-  }, []);
+  /* =====================================================
+     NEW CHAT
+  ===================================================== */
 
   function handleNewChat() {
     startNewChat();
   }
+
+  /* =====================================================
+     RECENT CHAT
+  ===================================================== */
 
   function handleRecentChat(chat) {
     startNewChat();
     sendMessage(chat.title);
   }
 
+  /* =====================================================
+     HOME
+  ===================================================== */
+
   function handleHome() {
     startNewChat();
     navigate("/chat");
   }
 
+  /* =====================================================
+     SETTINGS
+  ===================================================== */
+
   function handleSettings() {
     alert("Settings section will be added soon.");
   }
 
+  /* =====================================================
+     PROFILE
+  ===================================================== */
+
   function handleProfile() {
-    alert("Profile section will be added soon.");
+    navigate("/profile");
   }
 
   return (
@@ -89,7 +72,9 @@ function Sidebar() {
         sidebarOpen ? "" : "sidebar-collapsed"
       }`}
     >
-      {/* SIDEBAR HEADER */}
+      {/* =====================================================
+         SIDEBAR HEADER
+      ===================================================== */}
 
       <div className="sidebar-header">
         <div className="sidebar-brand">
@@ -130,7 +115,9 @@ function Sidebar() {
         </button>
       </div>
 
-      {/* NEW CHAT */}
+      {/* =====================================================
+         NEW CHAT
+      ===================================================== */}
 
       <button
         type="button"
@@ -143,7 +130,9 @@ function Sidebar() {
         {sidebarOpen && <span>New chat</span>}
       </button>
 
-      {/* RECENT CHATS */}
+      {/* =====================================================
+         RECENT CHATS
+      ===================================================== */}
 
       {sidebarOpen && (
         <div className="recent-chats">
@@ -161,6 +150,7 @@ function Sidebar() {
                 title={chat.title}
               >
                 <MessageSquare size={14} />
+
                 <span>{chat.title}</span>
               </button>
             ))
@@ -172,9 +162,14 @@ function Sidebar() {
         </div>
       )}
 
-      {/* BOTTOM MENU */}
+      {/* =====================================================
+         BOTTOM MENU
+      ===================================================== */}
 
       <div className="sidebar-bottom">
+
+        {/* HOME */}
+
         <button
           type="button"
           className="sidebar-menu-button"
@@ -185,6 +180,8 @@ function Sidebar() {
 
           {sidebarOpen && <span>Home</span>}
         </button>
+
+        {/* SETTINGS */}
 
         <button
           type="button"
@@ -197,61 +194,18 @@ function Sidebar() {
           {sidebarOpen && <span>Settings</span>}
         </button>
 
-        {/* PROFILE SECTION */}
+        {/* PROFILE */}
 
-        <div
-          className="profile-container"
-          ref={profileRef}
+        <button
+          type="button"
+          className="sidebar-menu-button"
+          onClick={handleProfile}
+          title="Profile"
         >
-          <button
-            type="button"
-            className={`sidebar-menu-button ${
-              profileOpen ? "profile-active" : ""
-            }`}
-            onClick={handleProfile}
-            title="Profile"
-          >
-            <UserRound size={17} />
+          <UserRound size={17} />
 
-            {sidebarOpen && <span>Profile</span>}
-          </button>
-
-          {sidebarOpen && profileOpen && (
-            <div className="sidebar-profile-menu">
-              <div className="profile-info">
-                <div className="profile-avatar">
-                  <UserRound size={21} />
-                </div>
-
-                <div className="profile-details">
-                  <strong>BIS User</strong>
-
-                  <span>
-                    {savedUser?.email || "User account"}
-                  </span>
-
-                  <small>{userRole}</small>
-                </div>
-              </div>
-
-              <div className="profile-menu-divider"></div>
-
-              <div className="profile-logout-row">
-                <span>Logout</span>
-
-                <button
-                  type="button"
-                  className="logout-icon-button"
-                  onClick={handleLogout}
-                  title="Logout"
-                  aria-label="Logout"
-                >
-                  <LogOut size={19} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+          {sidebarOpen && <span>Profile</span>}
+        </button>
 
         {/* FOOTER */}
 
